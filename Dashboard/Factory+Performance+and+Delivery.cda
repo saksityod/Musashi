@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="delivery_order_shipped" type="sql.jndi">
+         <Jndi>musashi</Jndi>
+      </Connection>
+      <Connection id="delivery_current_stock" type="sql.jndi">
+         <Jndi>musashi</Jndi>
+      </Connection>
+      <Connection id="getComponent" type="sql.jndi">
+         <Jndi>musashi</Jndi>
+      </Connection>
+      <Connection id="getPlant" type="sql.jndi">
+         <Jndi>musashi</Jndi>
+      </Connection>
+      <Connection id="getProcess" type="sql.jndi">
+         <Jndi>musashi</Jndi>
+      </Connection>
+      <Connection id="getDeliveryVsEstimateStock" type="sql.jndi">
+         <Jndi>musashi</Jndi>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" connection="delivery_order_shipped" id="delivery_order_shipped"
+               type="sql">
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="paramDate" name="paramDate" type="String"/>
+         <Parameter default="paramPlantCode" name="paramPlantCode" type="String"/>
+      </Parameters>
+      <Query>SELECT fdp.cust_name,fdp.cust_name,sum(fdp.order_qty) as total_order_qty,
+sum(fdp.shipped_qty) as total_shipped_qty ,
+sum(fdp.back_order_qty) as total_back_order_qty ,
+DATE_FORMAT(fdp.plan_date,'%Y-%m-%d') as plan_date
+FROM fact_delivery_plan fdp
+where DATE_FORMAT(fdp.snapshop_date,'%Y-%m-%d')=${paramDate}
+and fdp.plant_code=${paramPlantCode}
+group by fdp.cust_name
+order by total_order_qty desc</Query>
+   </DataAccess>
+   <DataAccess access="public" connection="delivery_current_stock" id="delivery_current_stock"
+               type="sql">
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="paramDate" name="paramDate" type="String"/>
+         <Parameter default="paramPlantCode" name="paramPlantCode" type="String"/>
+         <Parameter default="paramCusCode" name="paramCusCode" type="String"/>
+      </Parameters>
+      <Query>SELECT fdp.item_code,fdp.item_name,sum(fdp.stock_qty) as total_stock_qty ,
+sum(fdp.back_order_qty) as total_back_order_qty
+FROM fact_delivery_plan fdp
+where DATE_FORMAT(fdp.snapshop_date,'%Y-%m-%d')=${paramDate}
+and fdp.plant_code =${paramPlantCode}
+and fdp.cust_name=${paramCusCode}
+group by fdp.item_code,fdp.item_name
+order by total_stock_qty desc</Query>
+   </DataAccess>
+   <DataAccess access="public" connection="getComponent" id="getComponent" type="sql">
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="paramDate" name="paramDate" type="String"/>
+         <Parameter default="paramItemCode" name="paramItemCode" type="String"/>
+      </Parameters>
+      <Query>SELECT distinct(fps.comp_item_code)  as component ,fps.parent_comp_item_name
+FROM fact_process_stock fps
+where DATE_FORMAT(fps.stock_date,'%Y-%m-%d')=${paramDate}
+-- and fps.plant_code='E'
+and fps.item_code=${paramItemCode}
+order by component</Query>
+   </DataAccess>
+   <DataAccess access="public" connection="getPlant" id="getPlant" type="sql">
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters/>
+      <Query>select distinct(fdp.plant_code) as plant_code  
+from fact_delivery_plan fdp
+order by plant_code</Query>
+   </DataAccess>
+   <DataAccess access="public" connection="getProcess" id="getProcess" type="sql">
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="paramComponent" name="paramComponent" type="String"/>
+         <Parameter default="paramDate" name="paramDate" type="String"/>
+         <Parameter default="paramItemCode" name="paramItemCode" type="String"/>
+      </Parameters>
+      <Query>select DISTINCT fps.process_name,fps.stock_qty,fps.cycle_time_adjust as cycle_time
+from fact_process_stock fps
+where fps.parent_comp_item_code=${paramComponent}
+and fps.parent_item_code = ${paramItemCode}
+-- and fps.plant_code='E'
+and DATE_FORMAT(fps.stock_date,'%Y-%m-%d')=${paramDate}
+-- GROUP BY fps.process_name,fps.stock_qty,fps.cycle_time_adjust</Query>
+   </DataAccess>
+   <DataAccess access="public" connection="getDeliveryVsEstimateStock"
+               id="getDeliveryVsEstimateStock"
+               type="sql">
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="paramDate" name="paramDate" type="String"/>
+         <Parameter default="paramPlantCode" name="paramPlantCode" type="String"/>
+         <Parameter default="paramCusCode" name="paramCusCode" type="String"/>
+         <Parameter default="paramItemCode" name="paramItemCode" type="String"/>
+      </Parameters>
+      <Query>SELECT DATE_FORMAT(fdp.plan_date,'%Y-%m-%d') as "Delivery Date", sum(fdp.shipped_qty) as "Delivery" ,
+sum(fdp.estimate_stock_qty)  as "Estimated Stock"
+FROM fact_delivery_plan fdp
+where DATE_FORMAT(fdp.plan_date,'%Y-%m-%d') between  ${paramDate} and ADDDATE(${paramDate}, INTERVAL 17 DAY)
+and fdp.cust_name= ${paramCusCode}-- '0000000020'
+and fdp.item_code= ${paramItemCode}-- '17720G420004'
+and fdp.plant_code=${paramPlantCode}-- '6810'
+group by DATE_FORMAT(fdp.plan_date,'%Y-%m-%d')</Query>
+   </DataAccess>
+</CDADescriptor>
