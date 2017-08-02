@@ -1,0 +1,190 @@
+<Schema name="Delivery">
+  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="snapshop_date">
+    <Hierarchy visible="true" hasAll="true" primaryKey="snapshop_date">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="snapshop_date" visible="true" column="snapshop_date" type="Date" uniqueMembers="true" levelType="TimeDays" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="plant_code">
+    <Hierarchy visible="true" hasAll="true" primaryKey="plant_code">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="plant_code" visible="true" column="plant_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="cust_code">
+    <Hierarchy visible="true" hasAll="true" primaryKey="cust_code">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="cust_code" visible="true" column="cust_code" ordinalColumn="cust_code" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="item_code">
+    <Hierarchy visible="true" hasAll="true" primaryKey="item_code">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="item_code" visible="true" column="item_code" ordinalColumn="item_code" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="plan_date">
+    <Hierarchy visible="true" hasAll="true" primaryKey="plan_date">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="plan_date" visible="true" column="plan_date" ordinalColumn="plan_date" type="Date" uniqueMembers="false" levelType="TimeDays" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="cust_name">
+    <Hierarchy visible="true" hasAll="true" primaryKey="cust_code">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="cust_name" visible="true" column="cust_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="item_name">
+    <Hierarchy visible="true" hasAll="true" primaryKey="item_code">
+      <Table name="fact_delivery_plan">
+      </Table>
+      <Level name="item_name" visible="true" column="item_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="delivery_plan" visible="true" cache="true" enabled="true">
+    <Table name="fact_delivery_plan">
+    </Table>
+    <DimensionUsage source="snapshop_date" name="snapshop_date" visible="true" foreignKey="snapshop_date" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="plant_code" name="plant_code" visible="true" foreignKey="plant_code" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="cust_code" name="cust_code" visible="true" foreignKey="cust_code" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="cust_name" name="cust_name" visible="true" foreignKey="cust_code" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="item_code" name="item_code" visible="true" foreignKey="item_code" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="item_name" name="item_name" visible="true" foreignKey="item_name" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="plan_date" name="plan_date" visible="true" foreignKey="plan_date" highCardinality="false">
+    </DimensionUsage>
+    <Measure name="order_qty" column="order_qty" datatype="Integer" formatString="#,##0" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="shipped_qty" column="shipped_qty" datatype="Integer" formatString="#,##0" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="back_order_qty" column="back_order_qty" datatype="Integer" formatString="#,##0" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="stock_qty" column="stock_qty" datatype="Integer" formatString="#,##0" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="estimate_stock_qty" column="estimate_stock_qty" datatype="Integer" formatString="#,##0" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+  <Cube name="process_stock" visible="true" cache="true" enabled="true">
+    <Table name="fact_process_stock">
+    </Table>
+    <Dimension type="StandardDimension" visible="true" foreignKey="plant_code" highCardinality="false" name="plant_code" description="plant_code">
+      <Hierarchy visible="true" hasAll="true" primaryKey="plant_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="plant_code" visible="true" column="plant_code" ordinalColumn="plant_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="item_code" highCardinality="false" name="item_code" description="item_code">
+      <Hierarchy visible="true" hasAll="true" primaryKey="item_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="item_code" visible="true" column="item_code" ordinalColumn="item_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="item_code" highCardinality="false" name="item_name">
+      <Hierarchy visible="true" hasAll="true" primaryKey="item_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="item_name" visible="true" column="item_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="comp_item_code" highCardinality="false" name="comp_item_code" description="comp_item_code">
+      <Hierarchy visible="true" hasAll="true" primaryKey="comp_item_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="comp_item_code" visible="true" column="comp_item_code" ordinalColumn="comp_item_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="comp_item_code" highCardinality="false" name="comp_item_name">
+      <Hierarchy visible="true" hasAll="true" primaryKey="comp_item_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="comp_item_name" visible="true" column="comp_item_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="process_code" highCardinality="false" name="process_code" description="process_code">
+      <Hierarchy visible="true" hasAll="true" primaryKey="process_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="process_code" visible="true" column="process_code" ordinalColumn="process_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="process_code" highCardinality="false" name="process_name">
+      <Hierarchy visible="true" hasAll="true" primaryKey="process_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="process_name" visible="true" column="process_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="TimeDimension" visible="true" foreignKey="stock_date" highCardinality="false" name="stock_date" description="stock_date">
+      <Hierarchy visible="true" hasAll="true" primaryKey="stock_date">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="stock_date" visible="true" column="stock_date" ordinalColumn="stock_date" type="Date" uniqueMembers="true" levelType="TimeDays" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="parent_item_code" highCardinality="false" name="parent_item_code" description="parent_item_code">
+      <Hierarchy visible="true" hasAll="true" primaryKey="parent_item_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="parent_item_code" visible="true" column="parent_item_code" ordinalColumn="parent_item_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="parent_comp_item_code" highCardinality="false" name="parent_comp_item_code" description="parent_comp_item_code">
+      <Hierarchy visible="true" hasAll="true" primaryKey="parent_comp_item_code">
+        <Table name="fact_process_stock">
+        </Table>
+        <Level name="parent_comp_item_code" visible="true" column="parent_comp_item_code" ordinalColumn="parent_comp_item_code" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="parent_item_code" name="parent_item_name">
+      <Hierarchy visible="true" hasAll="true" primaryKey="parent_item_code">
+        <Table name="fact_process_stock" alias="">
+        </Table>
+        <Level name="parent_item_name" visible="true" column="parent_item_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="parent_comp_item_code" name="parent_comp_item_name">
+      <Hierarchy visible="true" hasAll="true" primaryKey="parent_comp_item_code">
+        <Table name="fact_process_stock" alias="">
+        </Table>
+        <Level name="parent_comp_item_name" visible="true" column="parent_comp_item_name" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Measure name="stock_qty" column="stock_qty" datatype="Integer" formatString="#,##0" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="cycle_time_adjust" column="cycle_time_adjust" datatype="Numeric" formatString="#,##0.#0" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+</Schema>
